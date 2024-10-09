@@ -9,4 +9,4 @@ Reducing memory by not pushing to github.
 1. Analyze dataset
 2. Cropping
 3. CNN
-   4. train/test
+    4. train/test
