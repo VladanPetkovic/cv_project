@@ -1,4 +1,3 @@
-import sys
 import cv2
 import cv2.data
 import os
@@ -19,6 +18,9 @@ def get_gray_image(img):
 
 
 def resize_by_height(img, target_height):
+    if img is None:
+        return None
+
     (actual_height, actual_width) = img.shape[:2]
 
     aspect_ratio = actual_width / actual_height
@@ -32,7 +34,7 @@ def get_image_from_path(file_path):
     img = cv2.imread(file_path)
     if img is None:
         print('Error: Image not found or unable to load.')
-        sys.exit(1)
+        return None
 
     return img
 
@@ -83,15 +85,18 @@ def process_folder(folder):
             actual_image = get_image_from_path(file_path)
             grey_image = get_gray_image(actual_image)
             cropped_image = crop_to_face(grey_image)
-            if cropped_image is not None:
+            resized_image = resize_by_height(cropped_image, 100)
+            if resized_image is not None:
                 new_file_path = os.path.join(new_folder, filename)
-                # cv2.imwrite(new_file_path, cropped_image) # TODO: uncomment to crop images
+                # cv2.imwrite(new_file_path, resized_image) # TODO: uncomment to crop images
 
                 with count_lock:
                     cropped_image_count += 1
 
                 if cropped_image_count % 10 == 0:
                     print(f"Processed {cropped_image_count}")
+
+    print("Thread finished for folder: " + folder)
 
 
 def crop_all_images_multi_threaded():
