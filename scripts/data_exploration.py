@@ -3,6 +3,8 @@ import pandas as pd
 import re
 import datetime
 from collections import defaultdict
+import matplotlib.pyplot as plt
+import seaborn as sns
 
 
 def extract_data_from_file(file_name):
@@ -77,3 +79,63 @@ def print_file_endings():
 
     for ext, count in format_counts.items():
         print(f"Number of {ext.upper()} files: {count}")
+
+
+def plot_age_histogram(dataframe, ax):
+    sns.histplot(dataframe['Age'], bins=20, kde=True, ax=ax)
+    ax.set_title('Age Distribution')
+    ax.set_xlabel('Age')
+    ax.set_ylabel('Frequency')
+    ax.grid(True)
+
+
+def plot_age_boxplot(dataframe):
+    plt.figure(figsize=(10, 6))
+    sns.boxplot(x=dataframe['Age'], color='lightblue')
+    plt.title('Age Boxplot')
+    plt.xlabel('Age')
+    plt.grid(True)
+
+
+def plot_gender_histogram(dataframe, ax):
+    sns.countplot(x='Gender', data=dataframe, ax=ax)
+    ax.set_title('Gender Distribution')
+    ax.set_xlabel('Gender')
+    ax.set_ylabel('Count')
+    ax.grid(True)
+
+
+def plot_race_histogram(dataframe, ax):
+    sns.countplot(x='Race', hue='Race', data=dataframe, palette='Set2', ax=ax, legend=False)
+    ax.set_title('Race Distribution')
+    ax.set_xlabel('Race')
+    ax.set_ylabel('Count')
+    ax.grid(True)
+
+
+def plot_datetime_histogram(dataframe, ax):
+    dataframe['DateTime'] = pd.to_datetime(dataframe['DateTime'], errors='coerce')
+    dataframe['Month'] = dataframe['DateTime'].dt.to_period('M')
+
+    # images per month
+    month_counts = dataframe['Month'].value_counts().sort_index()
+
+    month_counts.plot(kind='bar', ax=ax, color='skyblue')
+    ax.set_title('Images Collected by Month')
+    ax.set_xlabel('Month (Year-Month)')
+    ax.set_ylabel('Count')
+    ax.grid(True)
+
+
+def show_histogram_plots(dataframe):
+    # 2x2 grid
+    fig, axs = plt.subplots(2, 2, figsize=(14, 12))
+
+    plot_age_histogram(dataframe, axs[0, 0])
+    plot_gender_histogram(dataframe, axs[0, 1])
+    plot_race_histogram(dataframe, axs[1, 0])
+    plot_datetime_histogram(dataframe, axs[1, 1])
+
+    # prevent overlap
+    plt.tight_layout()
+    plt.show()
