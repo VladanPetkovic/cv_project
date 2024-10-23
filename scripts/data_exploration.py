@@ -48,8 +48,7 @@ def convert_to_meaningful_data(data):
     return unique_id, age, gender_str, race_str, formatted_datetime_str
 
 
-def get_dataframe():
-    folders = ['data/part1', 'data/part2', 'data/part3']
+def get_dataframe(folders):
     all_data = []
 
     # collect all data
@@ -63,8 +62,8 @@ def get_dataframe():
     return pd.DataFrame(all_data, columns=["Unique-Identifier", "Age", "Gender", "Race", "DateTime"])
 
 
-def create_csv(dataframe):
-    dataframe.to_csv("data/images.csv", index=False)
+def create_csv(dataframe, file_name):
+    dataframe.to_csv("data/" + file_name, index=False)
 
 
 def print_file_endings():
@@ -127,7 +126,7 @@ def plot_datetime_histogram(dataframe, ax):
     ax.grid(True)
 
 
-def show_histogram_plots(dataframe):
+def show_all_plots(dataframe):
     # 2x2 grid
     fig, axs = plt.subplots(2, 2, figsize=(14, 12))
 
@@ -139,3 +138,20 @@ def show_histogram_plots(dataframe):
     # prevent overlap
     plt.tight_layout()
     plt.show()
+
+    # show boxplot
+    plot_age_boxplot(dataframe)
+
+
+def print_statistics(df):
+    age_summary = df['Age'].describe()
+    gender_counts = df['Gender'].value_counts()
+    race_counts = df['Race'].value_counts()
+    print(age_summary)
+    print("\nGender Distribution:")
+    for gender, count in gender_counts.items():
+        print(f"\t{gender}: {count} ({(count / len(df) * 100):.2f}%)")
+
+    print("\nRace Distribution:")
+    for race, count in race_counts.items():
+        print(f"\t{race}: {count} ({(count / len(df) * 100):.2f}%)")

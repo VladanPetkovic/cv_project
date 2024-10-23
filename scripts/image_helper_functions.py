@@ -88,7 +88,7 @@ def process_folder(folder):
             resized_image = resize_by_height(cropped_image, 100)
             if resized_image is not None:
                 new_file_path = os.path.join(new_folder, filename)
-                # cv2.imwrite(new_file_path, resized_image) # TODO: uncomment to crop images
+                cv2.imwrite(new_file_path, resized_image)
 
                 with count_lock:
                     cropped_image_count += 1
