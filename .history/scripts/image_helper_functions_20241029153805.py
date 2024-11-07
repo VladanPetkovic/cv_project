@@ -2,13 +2,6 @@ import cv2
 import cv2.data
 import os
 import threading
-import numpy as np
-import tensorflow as tf
-from tensorflow.python.keras import layers, models
-from sklearn.model_selection import train_test_split
-from tensorflow.python.keras import utils
-from tensorflow.python.keras.callbacks import TensorBoard, ModelCheckpoint
-
 
 cropped_image_count = 0
 count_lock = threading.Lock()

@@ -6,8 +6,7 @@ import numpy as np
 import tensorflow as tf
 from tensorflow.python.keras import layers, models
 from sklearn.model_selection import train_test_split
-from tensorflow.python.keras import utils
-from tensorflow.python.keras.callbacks import TensorBoard, ModelCheckpoint
+from tensorflow.python.keras.utils import to_categorical
 
 
 cropped_image_count = 0
