@@ -51,7 +51,7 @@ def convert_to_meaningful_data(data):
 def get_dataframe(folders):
     all_data = []
 
-    # collect all data
+    # Collect all data
     for folder in folders:
         for filename in os.listdir(folder):
             if filename.endswith(".jpg"):
