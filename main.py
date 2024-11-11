@@ -26,20 +26,23 @@ show_all_plots(df_prepared, "After Image-preprocessing")
 print_statistics(df_prepared)
 
 # ------------- Data augmentation -----------------------------------------------------------------
+# Model requirements for image
 ageList = ['(0-4)', '(5-14)', '(15-24)', '(25-34)', '(35-49)', '(50-69)', '(70-117)']
 age_bins = [0, 4, 14, 24, 34, 49, 69, 117]  # Age bin edges
 
 df_prepared['age_bin'] = pd.cut(df_prepared['Age'], bins=age_bins, labels=ageList, right=False)
-
 print("Columns in df_prepared:", df_prepared.columns.tolist())
+plot_age_bin_counts(df_prepared, "Age-bins before augmentation", ageList)
 
-# Perform data augmentation to balance the dataset
-augmented_data_dir = 'data/augmented_images'
-augment_data(df_prepared, 'age_bin', augmented_data_dir)
+# perform data augmentation to balance the dataset
+# augment_data(df_prepared, 'age_bin') # TODO: uncomment to augment data again
 
-# Update the DataFrame with augmented data
-df_augmented = get_augmented_data(augmented_data_dir, 'age_bin')
-df_combined = pd.concat([df_prepared, df_augmented], ignore_index=True)
-df_combined = df_combined.sample(frac=1).reset_index(drop=True)
+# update the DataFrame with augmented data
+df_prepared = update_dataframe(df_prepared)
+plot_age_bin_counts(df_prepared, "Age-bins after augmentation", ageList)
 
 # ------------- Model building --------------------------------------------------------------------
+model = create_cnn_model(num_classes=len(ageList))
+# history = train_cnn_model(model, df_prepared, epochs=10, batch_size=32)
+# plot_training_history(history)
+# ------------- Evaluation ------------------------------------------------------------------------

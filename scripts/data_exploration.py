@@ -159,3 +159,16 @@ def print_statistics(df):
     print("\nRace Distribution:")
     for race, count in race_counts.items():
         print(f"\t{race}: {count} ({(count / len(df) * 100):.2f}%)")
+
+
+def plot_age_bin_counts(df, title, age_bin_order):
+    df['age_bin'] = pd.Categorical(df['age_bin'], categories=age_bin_order, ordered=True)
+    age_counts = df['age_bin'].value_counts().reindex(age_bin_order)
+
+    plt.figure(figsize=(10, 6))
+    age_counts.plot(kind='bar', color='skyblue')
+    plt.xlabel("Age Bins")
+    plt.ylabel("Images")
+    plt.title(title)
+    plt.xticks(rotation=45)
+    plt.show()

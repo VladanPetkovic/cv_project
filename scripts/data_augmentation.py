@@ -1,12 +1,17 @@
 import os
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 from tqdm import tqdm
 import cv2
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
 
+AUGMENTED_DATA_DIR = 'data/augmented_images'
 
-def augment_images(df_subset, target_count, save_dir, label_col, unique_id_col='Unique-Identifier'):
+
+def augment_images(df_subset, target_count, save_dir, label_col):
+    created_images = 0
+
     # Initialize ImageDataGenerator with augmentation parameters
     datagen = ImageDataGenerator(
         rotation_range=10,
@@ -19,16 +24,19 @@ def augment_images(df_subset, target_count, save_dir, label_col, unique_id_col='
     directories = ['data/part1_prepared', 'data/part2_prepared', 'data/part3_prepared']
 
     # Calculate how many additional images are needed
-    images_needed = target_count - len(df_subset)
-    if images_needed <= 0:
+    if target_count < len(df_subset):
         print("No additional images needed.")
-        return
+        return 0
 
-    # Determine number of augmented images per original image
+    # number of augmented images per original image
+    images_needed = min(1000, target_count - len(df_subset))  # create 1000 images MAX for one age-bin
     augment_per_image = images_needed // len(df_subset) + 1
 
     for index, row in tqdm(df_subset.iterrows(), total=df_subset.shape[0], desc="Augmenting images"):
-        unique_id = row[unique_id_col]
+        if images_needed <= created_images:
+            continue
+
+        unique_id = row['Unique-Identifier']
         filename = unique_id  # Assumes unique_id includes the file name with extension
 
         # Search for the image in the specified directories
@@ -61,31 +69,37 @@ def augment_images(df_subset, target_count, save_dir, label_col, unique_id_col='
                     save_prefix=prefix,
                     save_format='jpg'
             )):
+                created_images += 1
                 if i >= augment_per_image:
                     break
         except Exception as e:
             print(f"Error augmenting image '{img_path}': {e}")
 
+    return created_images
 
-def augment_data(df, label_column, augmented_data_dir):
+
+def augment_data(df, label_column):
+    augmented_images = 0
     # Create directory to save augmented images
-    os.makedirs(augmented_data_dir, exist_ok=True)
+    os.makedirs(AUGMENTED_DATA_DIR, exist_ok=True)
 
-    # Determine target count
+    # target_count = max-age-bin
     target_count = df[label_column].value_counts().max()
 
-    # Augment data for each label
+    # create data for every age-bin
     for label in df[label_column].unique():
         df_subset = df[df[label_column] == label]
-        save_dir = os.path.join(augmented_data_dir, str(label))
+        save_dir = os.path.join(AUGMENTED_DATA_DIR, str(label))
         os.makedirs(save_dir, exist_ok=True)
-        augment_images(df_subset, target_count, save_dir, label_column)
+        augmented_images += augment_images(df_subset, target_count, save_dir, label_column)
+
+    print(f"Augmented {augmented_images} images.")
 
 
-def get_augmented_data(augmented_data_dir, label_column):
+def get_augmented_data(label_column):
     augmented_data = []
-    for label in os.listdir(augmented_data_dir):
-        label_dir = os.path.join(augmented_data_dir, label)
+    for label in os.listdir(AUGMENTED_DATA_DIR):
+        label_dir = os.path.join(AUGMENTED_DATA_DIR, label)
         for img_file in os.listdir(label_dir):
             img_path = os.path.join(label_dir, img_file)
             augmented_data.append({
@@ -93,3 +107,9 @@ def get_augmented_data(augmented_data_dir, label_column):
                 label_column: label
             })
     return pd.DataFrame(augmented_data)
+
+
+def update_dataframe(previous_df):
+    df_augmented = get_augmented_data('age_bin')
+    df_combined = pd.concat([previous_df, df_augmented], ignore_index=True)
+    return df_combined.sample(frac=1).reset_index(drop=True)
