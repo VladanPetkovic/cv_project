@@ -67,7 +67,6 @@ def augment_images(df_subset, target_count, save_dir, label_col, unique_id_col='
             print(f"Error augmenting image '{img_path}': {e}")
 
 
-
 def augment_data(df, label_column, augmented_data_dir):
     # Create directory to save augmented images
     os.makedirs(augmented_data_dir, exist_ok=True)

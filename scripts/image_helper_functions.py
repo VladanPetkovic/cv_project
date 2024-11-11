@@ -2,13 +2,6 @@ import cv2
 import cv2.data
 import os
 import threading
-import numpy as np
-import tensorflow as tf
-from tensorflow.python.keras import layers, models
-from sklearn.model_selection import train_test_split
-from tensorflow.python.keras import utils
-from tensorflow.python.keras.callbacks import TensorBoard, ModelCheckpoint
-
 
 cropped_image_count = 0
 count_lock = threading.Lock()
@@ -123,3 +116,14 @@ def crop_all_images_multi_threaded():
         thread.join()
 
     print(f"Total images cropped: {cropped_image_count}")
+
+
+# THIS DEMONSTRATES EXAMPLE USAGE - BUT IS NOT NEEDED
+def show_image_framed():
+    test_image = get_image_from_path('scripts/test.jpg')
+    grey_image = get_gray_image(test_image)
+    resized_grey_image = resize_by_height(grey_image, 400)
+    display_image(resized_grey_image, 'grey and resized image')
+
+    framed_image = get_framed_cropped_face_image(resized_grey_image)
+    display_image(framed_image, 'framed and cropped image')

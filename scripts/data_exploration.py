@@ -66,6 +66,9 @@ def create_csv(dataframe, file_name):
     dataframe.to_csv("data/" + file_name, index=False)
 
 
+# as we have two wrong files:
+# 55_0_0_20170116232725357JPG
+# 44_1_4_20170116235150272.pg
 def print_file_endings():
     folders = ['data/part1', 'data/part2', 'data/part3']
     format_counts = defaultdict(int)
@@ -126,7 +129,7 @@ def plot_datetime_histogram(dataframe, ax):
     ax.grid(True)
 
 
-def show_all_plots(dataframe):
+def show_all_plots(dataframe, title):
     # 2x2 grid
     fig, axs = plt.subplots(2, 2, figsize=(14, 12))
 
@@ -134,6 +137,7 @@ def show_all_plots(dataframe):
     plot_gender_histogram(dataframe, axs[0, 1])
     plot_race_histogram(dataframe, axs[1, 0])
     plot_datetime_histogram(dataframe, axs[1, 1])
+    fig.suptitle(title, fontsize=16)
 
     # prevent overlap
     plt.tight_layout()
