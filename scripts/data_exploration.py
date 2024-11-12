@@ -57,9 +57,11 @@ def get_dataframe(folders):
             if filename.endswith(".jpg"):
                 data = extract_data_from_file(filename)
                 if data is not None:
-                    all_data.append(convert_to_meaningful_data(data))
+                    meaningful_data = convert_to_meaningful_data(data)
+                    full_filename = folder + '/' + filename
+                    all_data.append(meaningful_data + (full_filename,))
 
-    return pd.DataFrame(all_data, columns=["Unique-Identifier", "Age", "Gender", "Race", "DateTime"])
+    return pd.DataFrame(all_data, columns=["Unique-Identifier", "Age", "Gender", "Race", "DateTime", "FilePath"])
 
 
 def create_csv(dataframe, file_name):

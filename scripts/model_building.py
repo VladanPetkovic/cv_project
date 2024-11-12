@@ -1,3 +1,4 @@
+from keras.src.legacy.preprocessing.image import ImageDataGenerator
 from tensorflow.keras import models, layers
 
 import numpy as np
@@ -41,44 +42,45 @@ def create_cnn_model(num_classes, input_shape=(100, 100, 1)):
 def train_cnn_model(model, df_final, epochs=20, learning_rate=0.001, batch_size=32, validation_split=0.2):
     # 1. (Random) initialization of weights and biases --> done by the model
 
-    # Split data into training and validation sets
-    images = []
-    labels = df_final['age-bin']
-    num_samples = len(images)
-    val_size = int(num_samples * validation_split)
-    x_train, x_val = images[val_size:], images[:val_size]
-    y_train, y_val = labels[val_size:], labels[:val_size]
+    img_height, img_width = 100, 100  # Set image dimensions for the model input
+
+    datagen = ImageDataGenerator(rescale=1. / 255, validation_split=validation_split)
+
+    train_generator = datagen.flow_from_dataframe(
+        dataframe=df_final,
+        x_col="FilePath",
+        y_col="age-bin",
+        target_size=(img_height, img_width),
+        batch_size=batch_size,
+        class_mode="categorical",
+        subset="training"
+    )
+
+    validation_generator = datagen.flow_from_dataframe(
+        dataframe=df_final,
+        x_col="FilePath",
+        y_col="age-bin",
+        target_size=(img_height, img_width),
+        batch_size=batch_size,
+        class_mode="categorical",
+        subset="validation"
+    )
 
     history = {'loss': [], 'accuracy': [], 'val_loss': [], 'val_accuracy': []}
     for epoch in range(epochs):
         print(f"Epoch {epoch + 1}/{epochs}")
 
-        # Shuffle training data at the start of each epoch
-        indices = np.arange(len(x_train))
-        np.random.shuffle(indices)
-        x_train = x_train[indices]
-        y_train = y_train[indices]
-
         # Mini-batch gradient descent
-        for i in range(0, len(x_train), batch_size):
-            x_batch = x_train[i:i + batch_size]
-            y_batch = y_train[i:i + batch_size]
-
-            # 2. Forward propagation to determine predictions
+        for x_batch, y_batch in train_generator:
             with tf.GradientTape() as tape:
                 predictions = model(x_batch, training=True)
-
-                # Calculate loss for the current batch
                 loss = tf.keras.losses.categorical_crossentropy(y_batch, predictions)
 
-            # 3. Backpropagation/Gradient descent
-            # Compute gradients with respect to loss
             gradients = tape.gradient(loss, model.trainable_variables)
-            # Update weights and biases based on gradients
             model.optimizer.apply_gradients(zip(gradients, model.trainable_variables))
 
-        train_loss, train_accuracy = model.evaluate(x_train, y_train, verbose=0)
-        val_loss, val_accuracy = model.evaluate(x_val, y_val, verbose=0)
+        train_loss, train_accuracy = model.evaluate(train_generator, verbose=0)
+        val_loss, val_accuracy = model.evaluate(validation_generator, verbose=0)
         history['loss'].append(train_loss)
         history['accuracy'].append(train_accuracy)
         history['val_loss'].append(val_loss)
