@@ -7,3 +7,4 @@ data/part2_prepared
 data/part3_prepared
 data/augmented_images
 .history
+model/model.h5

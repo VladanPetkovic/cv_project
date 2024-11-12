@@ -2,10 +2,13 @@ from keras.src.legacy.preprocessing.image import ImageDataGenerator
 from sklearn.metrics import confusion_matrix
 from tensorflow.keras import models, layers
 from tqdm import tqdm
+import os
 import seaborn as sns
 import numpy as np
 import tensorflow as tf
 import matplotlib.pyplot as plt
+
+SAVE_MODEL_DIR = 'model'
 
 
 # ------------ Model for Age detection ------------ #
@@ -107,6 +110,7 @@ def predict_on_validation(model, validation_generator):
 
 
 def train_cnn_model(model, df_final, epochs=5, batch_size=32, validation_split=0.2):
+    os.makedirs(SAVE_MODEL_DIR, exist_ok=True)
     train_generator, validation_generator = create_data_generators(df_final,
                                                                    batch_size=batch_size,
                                                                    validation_split=validation_split)
@@ -125,6 +129,7 @@ def train_cnn_model(model, df_final, epochs=5, batch_size=32, validation_split=0
     # generate predictions for the validation dataset
     val_true_labels, val_predictions = predict_on_validation(model, validation_generator)
 
+    model.save(SAVE_MODEL_DIR + "/model.h5")  # saving model
     return history, val_true_labels, val_predictions
 
 
@@ -162,4 +167,30 @@ def plot_confusion_matrix(true_labels, predictions, class_names):
     plt.xlabel('Predicted')
     plt.ylabel('True')
     plt.title('Confusion Matrix')
+    plt.show()
+
+
+def plot_normalized_confusion_matrix(true_labels, predictions, class_names):
+    cm = confusion_matrix(true_labels, predictions)
+    cm_normalized = cm.astype('float') / cm.sum(axis=1)[:, np.newaxis]
+
+    plt.figure(figsize=(8, 6))
+    sns.heatmap(cm_normalized, annot=True, fmt=".2f", cmap="Blues", xticklabels=class_names, yticklabels=class_names)
+    plt.xlabel('Predicted')
+    plt.ylabel('True')
+    plt.title('Normalized Confusion Matrix (Relative Values)')
+    plt.show()
+
+
+def plot_class_accuracy_histogram(true_labels, predictions, class_names):
+    cm = confusion_matrix(true_labels, predictions)
+    class_accuracies = np.diagonal(cm) / np.sum(cm, axis=1)
+
+    plt.figure(figsize=(8, 6))
+    sns.barplot(x=class_names, y=class_accuracies, palette="Blues_d")
+    plt.xlabel('Class')
+    plt.ylabel('Relative Accuracy')
+    plt.title('Relative Accuracy per Class (Histogram)')
+    plt.ylim(0, 1)  # Accuracy range from 0 to 1
+    plt.xticks(rotation=45)
     plt.show()
