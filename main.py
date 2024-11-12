@@ -43,6 +43,8 @@ plot_age_bin_counts(df_prepared, "Age-bins after augmentation", ageList)
 
 # ------------- Model building --------------------------------------------------------------------
 model = create_cnn_model(num_classes=len(ageList))
-# history = train_cnn_model(model, df_prepared, epochs=10, batch_size=32)
-# plot_training_history(history)
+history, val_true_labels, val_predictions = train_cnn_model(model, df_prepared, epochs=6, batch_size=64)
+
 # ------------- Evaluation ------------------------------------------------------------------------
+plot_history(history)
+plot_confusion_matrix(val_true_labels, val_predictions, ageList)
