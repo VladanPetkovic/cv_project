@@ -4,25 +4,15 @@
 
 > Semester 5 \
 > University of Applied Sciences Technikum Wien
+> Submission-date: 14.11.2024
+
+Project-members:
+- Schwarz Severin
+- Schmidt Tobias
+- Petkovic Vladan
+- Goeppel Magnus
+
 
 ### Data
 
 https://susanqq.github.io/UTKFace/
-
-### Model development
-
-First model with:
-
-- 5 epochs
-- batch_size=100
-- train/test-split = 80%/20%
-
-Second model with:
-
-- 5 epochs
-- batch_size=500
-- train/test-split = 80%/20%
-
----
-
-Result: higher batch_size leads to lower accuracy but faster processing.
